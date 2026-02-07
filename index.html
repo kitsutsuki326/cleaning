@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>掃除管理 Pro Max</title>
+    <title>掃除管理 スケジュール版</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -19,17 +19,13 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // 部屋の候補データ
         const ROOM_SUGGESTIONS = [
             { name: 'リビング', icon: '🛋️' },
             { name: 'キッチン', icon: '🍳' },
             { name: 'お風呂', icon: '🛁' },
             { name: 'トイレ', icon: '🚽' },
             { name: '寝室', icon: '🛏️' },
-            { name: 'ダイニング', icon: '🍽️' },
-            { name: '洗面所', icon: '🧼' },
-            { name: '玄関', icon: '👟' },
-            { name: 'ベランダ', icon: '🌿' }
+            { name: '玄関', icon: '👟' }
         ];
 
         function App() {
@@ -38,31 +34,32 @@
             const [showAddModal, setShowAddModal] = useState(false);
 
             useEffect(() => {
-                const saved = localStorage.getItem('cleaning-pro-v3');
+                const saved = localStorage.getItem('cleaning-pro-v4');
                 if (saved) setRooms(JSON.parse(saved));
             }, []);
 
             useEffect(() => {
-                localStorage.setItem('cleaning-pro-v3', JSON.stringify(rooms));
+                localStorage.setItem('cleaning-pro-v4', JSON.stringify(rooms));
                 document.documentElement.classList.toggle('dark', darkMode);
             }, [rooms, darkMode]);
 
-            const addNewRoom = (name, icon) => {
-                const newRoom = {
-                    id: Date.now(),
-                    name: name || "新しい部屋",
-                    icon: icon || "🏠",
-                    tasks: []
-                };
-                setRooms([...rooms, newRoom]);
-                setShowAddModal(false);
+            // 期限と色の判定ロジック
+            const getTaskUrgency = (task) => {
+                if (!task.lastCleaned) return { level: 'red', label: '未実施', percent: 100 };
+                
+                const last = new Date(task.lastCleaned);
+                const today = new Date();
+                const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
+                const ratio = diffDays / task.frequency;
+
+                if (ratio >= 1) return { level: 'red', label: '期限切れ', percent: 100 };
+                if (ratio >= 0.7) return { level: 'yellow', label: 'そろそろ', percent: ratio * 100 };
+                return { level: 'green', label: 'きれい', percent: ratio * 100 };
             };
 
-            const completeTask = (roomId, taskId) => {
-                setRooms(rooms.map(r => r.id === roomId ? {
-                    ...r, tasks: r.tasks.map(t => t.id === taskId ? {...t, lastCleaned: new Date().toISOString()} : t)
-                } : r));
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
+            const addNewRoom = (name, icon) => {
+                setRooms([...rooms, { id: Date.now(), name, icon, tasks: [] }]);
+                setShowAddModal(false);
             };
 
             const addTask = (roomId, name, freq) => {
@@ -71,37 +68,83 @@
                 } : r));
             };
 
+            const completeTask = (roomId, taskId) => {
+                setRooms(rooms.map(r => r.id === roomId ? {
+                    ...r, tasks: r.tasks.map(t => t.id === taskId ? {...t, lastCleaned: new Date().toISOString()} : t)
+                } : r));
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 }, colors: ['#22c55e', '#ffffff'] });
+            };
+
+            const removeRoom = (id) => setRooms(rooms.filter(r => r.id !== id));
+
             return (
                 <div className="max-w-2xl mx-auto p-4">
                     <header className="flex justify-between items-center py-6">
-                        <h1 className="text-2xl font-black dark:text-white">✨ 掃除マスター</h1>
+                        <h1 className="text-2xl font-black dark:text-white flex items-center gap-2">
+                            ✨ 掃除スケジュール
+                        </h1>
                         <button onClick={() => setDarkMode(!darkMode)} className="p-2 bg-white dark:bg-slate-800 rounded-full shadow">
                             {darkMode ? '☀️' : '🌙'}
                         </button>
                     </header>
 
-                    {/* メインリスト */}
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {rooms.map(room => (
-                            <div key={room.id} className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-2xl">{room.icon}</span>
-                                    <h2 className="text-lg font-bold dark:text-white">{room.name}</h2>
+                            <div key={room.id} className="relative group">
+                                <div className="flex justify-between items-end mb-2 px-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl">{room.icon}</span>
+                                        <h2 className="text-xl font-bold dark:text-white">{room.name}</h2>
+                                    </div>
+                                    <button onClick={() => removeRoom(room.id)} className="text-xs text-slate-300 hover:text-red-400">削除</button>
                                 </div>
-                                <div className="space-y-2">
-                                    {room.tasks.map(task => (
-                                        <div key={task.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-2xl">
-                                            <div className="dark:text-slate-200 text-sm font-medium">{task.name}</div>
-                                            <button onClick={() => completeTask(room.id, task.id)} className="bg-white dark:bg-slate-600 p-2 rounded-xl shadow-sm hover:bg-green-50">✅</button>
-                                        </div>
-                                    ))}
+
+                                <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 space-y-4">
+                                    {room.tasks.length === 0 && <p className="text-center text-slate-400 text-sm py-4">タスクを追加してください</p>}
+                                    
+                                    {room.tasks.map(task => {
+                                        const urgency = getTaskUrgency(task);
+                                        const colorClass = {
+                                            red: 'bg-red-500',
+                                            yellow: 'bg-amber-400',
+                                            green: 'bg-emerald-500'
+                                        }[urgency.level];
+
+                                        return (
+                                            <div key={task.id} className="relative overflow-hidden bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 flex items-center justify-between border border-transparent hover:border-slate-200 dark:hover:border-slate-600 transition-all">
+                                                {/* 進捗ゲージ背景 */}
+                                                <div className="absolute bottom-0 left-0 h-1 bg-slate-200 dark:bg-slate-700 w-full opacity-30"></div>
+                                                <div className={`absolute bottom-0 left-0 h-1 ${colorClass} transition-all duration-1000`} style={{width: `${urgency.percent}%`}}></div>
+
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full ${colorClass} animate-pulse`}></div>
+                                                        <span className="font-bold dark:text-white">{task.name}</span>
+                                                    </div>
+                                                    <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">
+                                                        {task.frequency}日おき / {urgency.label}
+                                                    </div>
+                                                </div>
+
+                                                <button 
+                                                    onClick={() => completeTask(room.id, task.id)}
+                                                    className="ml-4 bg-white dark:bg-slate-700 dark:text-white p-3 rounded-xl shadow-sm hover:scale-110 active:scale-90 transition-transform"
+                                                >
+                                                    ✅
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+
+                                    {/* タスク追加フォーム */}
                                     <form onSubmit={(e) => {
                                         e.preventDefault();
-                                        addTask(room.id, e.target.tName.value, 7);
+                                        addTask(room.id, e.target.tName.value, e.target.tFreq.value);
                                         e.target.reset();
-                                    }} className="flex gap-2 mt-2">
-                                        <input name="tName" placeholder="タスク追加..." className="flex-1 bg-transparent border-b dark:text-white text-sm px-2 py-1 outline-none" required />
-                                        <button className="text-blue-500 text-xl font-bold">+</button>
+                                    }} className="flex gap-2 pt-2">
+                                        <input name="tName" placeholder="例: 掃除機" className="flex-1 bg-white dark:bg-slate-900 border dark:border-slate-700 dark:text-white rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 ring-blue-500/20" required />
+                                        <input name="tFreq" type="number" defaultValue="7" className="w-16 bg-white dark:bg-slate-900 border dark:border-slate-700 dark:text-white rounded-xl px-2 py-2 text-sm text-center outline-none" required />
+                                        <button className="bg-slate-800 dark:bg-slate-100 dark:text-slate-800 text-white px-4 rounded-xl text-sm font-bold">+</button>
                                     </form>
                                 </div>
                             </div>
@@ -110,22 +153,22 @@
 
                     {/* モーダル：部屋の追加 */}
                     {showAddModal && (
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-                            <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-in slide-in-from-bottom duration-300">
-                                <h3 className="text-xl font-bold mb-6 dark:text-white text-center">どこを掃除しますか？</h3>
-                                <div className="grid grid-cols-3 gap-4 mb-8">
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-4">
+                            <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-t-[3rem] sm:rounded-[3rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300">
+                                <h3 className="text-xl font-black mb-8 dark:text-white text-center">どこを登録しますか？</h3>
+                                <div className="grid grid-cols-3 gap-4 mb-10">
                                     {ROOM_SUGGESTIONS.map(sug => (
                                         <button 
                                             key={sug.name}
                                             onClick={() => addNewRoom(sug.name, sug.icon)}
-                                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                                            className="flex flex-col items-center gap-3 p-4 rounded-[2rem] bg-slate-50 dark:bg-slate-700/50 hover:bg-blue-600 hover:text-white transition-all group"
                                         >
-                                            <span className="text-3xl">{sug.icon}</span>
-                                            <span className="text-xs font-bold dark:text-slate-300">{sug.name}</span>
+                                            <span className="text-3xl group-hover:scale-125 transition-transform">{sug.icon}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-wider">{sug.name}</span>
                                         </button>
                                     ))}
                                 </div>
-                                <button onClick={() => setShowAddModal(false)} className="w-full py-4 text-slate-400 font-bold">キャンセル</button>
+                                <button onClick={() => setShowAddModal(false)} className="w-full py-4 text-slate-400 font-bold hover:text-slate-600 transition-colors">キャンセル</button>
                             </div>
                         </div>
                     )}
@@ -133,7 +176,7 @@
                     {/* 固定追加ボタン */}
                     <button 
                         onClick={() => setShowAddModal(true)}
-                        className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-8 py-4 rounded-full shadow-xl shadow-blue-200 dark:shadow-none font-bold text-lg flex items-center gap-2 hover:scale-105 transition-transform"
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-10 py-5 rounded-full shadow-2xl shadow-blue-500/40 font-black text-lg flex items-center gap-3 hover:scale-105 active:scale-95 transition-all"
                     >
                         <span>＋</span> 部屋を追加
                     </button>
