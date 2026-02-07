@@ -4,186 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>掃除管理 Pro Max</title>
-    <link rel="manifest" href="manifest.json">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
+        tailwind.config = { darkMode: 'class' }
     </script>
-    <style>
-        .custom-scroll::-webkit-scrollbar { height: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300 pb-32">
     <div id="root"></div>
     
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect } = React;
 
-        const Icons = {
-            Sun: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0A9 9 0 1111.243 3.242a9 9 0 018.121 0.122z"/></svg>,
-            Moon: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>,
-            Bell: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>,
-            Calendar: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>,
-            Check: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
-        };
+        // 部屋の候補データ
+        const ROOM_SUGGESTIONS = [
+            { name: 'リビング', icon: '🛋️' },
+            { name: 'キッチン', icon: '🍳' },
+            { name: 'お風呂', icon: '🛁' },
+            { name: 'トイレ', icon: '🚽' },
+            { name: '寝室', icon: '🛏️' },
+            { name: 'ダイニング', icon: '🍽️' },
+            { name: '洗面所', icon: '🧼' },
+            { name: '玄関', icon: '👟' },
+            { name: 'ベランダ', icon: '🌿' }
+        ];
 
         function App() {
             const [rooms, setRooms] = useState([]);
             const [darkMode, setDarkMode] = useState(false);
-            const [view, setView] = useState('list'); // 'list' or 'calendar'
+            const [showAddModal, setShowAddModal] = useState(false);
 
-            // 初期化
             useEffect(() => {
-                const saved = localStorage.getItem('cleaning-pro-v2');
+                const saved = localStorage.getItem('cleaning-pro-v3');
                 if (saved) setRooms(JSON.parse(saved));
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) setDarkMode(true);
             }, []);
 
             useEffect(() => {
-                localStorage.setItem('cleaning-pro-v2', JSON.stringify(rooms));
+                localStorage.setItem('cleaning-pro-v3', JSON.stringify(rooms));
                 document.documentElement.classList.toggle('dark', darkMode);
             }, [rooms, darkMode]);
 
-            // 通知の許可リクエスト
-            const requestNotification = () => {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") alert("通知がオンになりました！");
-                });
+            const addNewRoom = (name, icon) => {
+                const newRoom = {
+                    id: Date.now(),
+                    name: name || "新しい部屋",
+                    icon: icon || "🏠",
+                    tasks: []
+                };
+                setRooms([...rooms, newRoom]);
+                setShowAddModal(false);
             };
 
             const completeTask = (roomId, taskId) => {
-                setRooms(rooms.map(room => {
-                    if (room.id === roomId) {
-                        return {
-                            ...room,
-                            tasks: room.tasks.map(t => 
-                                t.id === taskId ? { ...t, lastCleaned: new Date().toISOString() } : t
-                            )
-                        };
-                    }
-                    return room;
-                }));
+                setRooms(rooms.map(r => r.id === roomId ? {
+                    ...r, tasks: r.tasks.map(t => t.id === taskId ? {...t, lastCleaned: new Date().toISOString()} : t)
+                } : r));
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
             };
 
-            // 期限計算ロジック
-            const getTaskStatus = (task) => {
-                if (!task.lastCleaned) return { daysLeft: 0, label: '未実施', color: 'text-red-500' };
-                const nextDate = new Date(task.lastCleaned);
-                nextDate.setDate(nextDate.getDate() + task.frequency);
-                const diff = Math.ceil((nextDate - new Date()) / (1000 * 60 * 60 * 24));
-                
-                if (diff <= 0) return { daysLeft: diff, label: '期限切れ', color: 'text-red-500' };
-                if (diff <= 2) return { daysLeft: diff, label: `あと${diff}日`, color: 'text-orange-500' };
-                return { daysLeft: diff, label: `あと${diff}日`, color: 'text-green-500' };
+            const addTask = (roomId, name, freq) => {
+                setRooms(rooms.map(r => r.id === roomId ? {
+                    ...r, tasks: [...r.tasks, { id: Date.now(), name, frequency: parseInt(freq), lastCleaned: null }]
+                } : r));
             };
 
-            // 簡易カレンダー用データ（今日から7日間）
-            const nextSevenDays = useMemo(() => {
-                return [...Array(7)].map((_, i) => {
-                    const date = new Date();
-                    date.setDate(date.getDate() + i);
-                    return date;
-                });
-            }, []);
-
             return (
-                <div className="min-h-screen pb-24">
-                    {/* Header */}
-                    <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4">
-                        <div className="max-w-2xl mx-auto flex justify-between items-center">
-                            <h1 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                🏠 掃除管理
-                            </h1>
-                            <div className="flex gap-2">
-                                <button onClick={() => setView(view === 'list' ? 'calendar' : 'list')} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                    <Icons.Calendar />
-                                </button>
-                                <button onClick={requestNotification} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                    <Icons.Bell />
-                                </button>
-                                <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
-                                </button>
-                            </div>
-                        </div>
+                <div className="max-w-2xl mx-auto p-4">
+                    <header className="flex justify-between items-center py-6">
+                        <h1 className="text-2xl font-black dark:text-white">✨ 掃除マスター</h1>
+                        <button onClick={() => setDarkMode(!darkMode)} className="p-2 bg-white dark:bg-slate-800 rounded-full shadow">
+                            {darkMode ? '☀️' : '🌙'}
+                        </button>
                     </header>
 
-                    <main className="max-w-2xl mx-auto p-4 space-y-6 mt-4">
-                        {/* 簡易カレンダービュー */}
-                        {view === 'calendar' && (
-                            <section className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl shadow-slate-200 dark:shadow-none border border-slate-100 dark:border-slate-700">
-                                <h2 className="text-lg font-bold mb-4 dark:text-white">週間スケジュール</h2>
-                                <div className="flex gap-4 overflow-x-auto pb-4 custom-scroll">
-                                    {nextSevenDays.map(date => (
-                                        <div key={date.toISOString()} className="min-w-[120px] text-center p-3 rounded-2xl bg-slate-50 dark:bg-slate-700/50">
-                                            <div className="text-xs text-slate-400 mb-1">{date.toLocaleDateString('ja-JP', { weekday: 'short' })}</div>
-                                            <div className="text-xl font-bold dark:text-white">{date.getDate()}</div>
-                                            <div className="mt-2 space-y-1">
-                                                {rooms.flatMap(r => r.tasks).filter(t => {
-                                                    const next = new Date(t.lastCleaned || 0);
-                                                    next.setDate(next.getDate() + t.frequency);
-                                                    return next.toDateString() === date.toDateString();
-                                                }).map(t => (
-                                                    <div key={t.id} className="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 px-1 py-0.5 rounded truncate">
-                                                        {t.name}
-                                                    </div>
-                                                ))}
-                                            </div>
+                    {/* メインリスト */}
+                    <div className="space-y-6">
+                        {rooms.map(room => (
+                            <div key={room.id} className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="text-2xl">{room.icon}</span>
+                                    <h2 className="text-lg font-bold dark:text-white">{room.name}</h2>
+                                </div>
+                                <div className="space-y-2">
+                                    {room.tasks.map(task => (
+                                        <div key={task.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-2xl">
+                                            <div className="dark:text-slate-200 text-sm font-medium">{task.name}</div>
+                                            <button onClick={() => completeTask(room.id, task.id)} className="bg-white dark:bg-slate-600 p-2 rounded-xl shadow-sm hover:bg-green-50">✅</button>
                                         </div>
                                     ))}
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        addTask(room.id, e.target.tName.value, 7);
+                                        e.target.reset();
+                                    }} className="flex gap-2 mt-2">
+                                        <input name="tName" placeholder="タスク追加..." className="flex-1 bg-transparent border-b dark:text-white text-sm px-2 py-1 outline-none" required />
+                                        <button className="text-blue-500 text-xl font-bold">+</button>
+                                    </form>
                                 </div>
-                            </section>
-                        )}
-
-                        {/* メインリスト */}
-                        {rooms.map(room => (
-                            <div key={room.id} className="space-y-3">
-                                <h3 className="font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-xs ml-2">{room.name}</h3>
-                                {room.tasks.map(task => {
-                                    const status = getTaskStatus(task);
-                                    return (
-                                        <div key={task.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm border border-slate-100 dark:border-slate-700 transition-transform active:scale-95">
-                                            <div className="flex-1">
-                                                <div className="font-bold text-slate-800 dark:text-white">{task.name}</div>
-                                                <div className={`text-xs font-semibold ${status.color}`}>{status.label}</div>
-                                            </div>
-                                            <button 
-                                                onClick={() => completeTask(room.id, task.id)}
-                                                className="bg-slate-50 dark:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-green-500 dark:hover:text-green-400 p-3 rounded-xl transition-colors"
-                                            >
-                                                <Icons.Check />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
                             </div>
                         ))}
+                    </div>
 
-                        {rooms.length === 0 && (
-                            <div className="text-center py-20 text-slate-400">
-                                <div className="text-4xl mb-4">✨</div>
-                                <p>右下の「＋」から最初のエリアを追加しましょう</p>
+                    {/* モーダル：部屋の追加 */}
+                    {showAddModal && (
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+                            <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-in slide-in-from-bottom duration-300">
+                                <h3 className="text-xl font-bold mb-6 dark:text-white text-center">どこを掃除しますか？</h3>
+                                <div className="grid grid-cols-3 gap-4 mb-8">
+                                    {ROOM_SUGGESTIONS.map(sug => (
+                                        <button 
+                                            key={sug.name}
+                                            onClick={() => addNewRoom(sug.name, sug.icon)}
+                                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                                        >
+                                            <span className="text-3xl">{sug.icon}</span>
+                                            <span className="text-xs font-bold dark:text-slate-300">{sug.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <button onClick={() => setShowAddModal(false)} className="w-full py-4 text-slate-400 font-bold">キャンセル</button>
                             </div>
-                        )}
-                    </main>
+                        </div>
+                    )}
 
-                    {/* Floating Add Button */}
+                    {/* 固定追加ボタン */}
                     <button 
-                        onClick={() => {
-                            const name = prompt("エリア名を入力（例：キッチン）");
-                            if (name) setRooms([...rooms, { id: Date.now(), name, tasks: [] }]);
-                        }}
-                        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg shadow-blue-200 dark:shadow-none flex items-center justify-center text-2xl font-bold hover:scale-110 transition-transform"
+                        onClick={() => setShowAddModal(true)}
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-8 py-4 rounded-full shadow-xl shadow-blue-200 dark:shadow-none font-bold text-lg flex items-center gap-2 hover:scale-105 transition-transform"
                     >
-                        ＋
+                        <span>＋</span> 部屋を追加
                     </button>
                 </div>
             );
@@ -191,13 +143,6 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-
-        // Service Workerの登録 (PWA用)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW登録失敗', err));
-            });
-        }
     </script>
 </body>
 </html>
