@@ -11,25 +11,23 @@
 </head>
 <body>
     <div id="root"></div>
-    
+
     <script type="text/babel">
-        const { useState, useEffect } = React;
-        
-        // Lucide icons as inline SVG components
+        const { useState, useEffect, useCallback } = React;
+
+        // === SVG Icon Components ===
         const Home = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
         );
-        
         const Droplets = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path>
                 <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path>
             </svg>
         );
-        
         const Bath = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path>
@@ -39,16 +37,12 @@
                 <line x1="17" x2="17" y1="19" y2="21"></line>
             </svg>
         );
-        
         const Bed = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M2 4v16"></path>
-                <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
-                <path d="M2 17h20"></path>
-                <path d="M6 8v9"></path>
+                <path d="M2 4v16"></path><path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
+                <path d="M2 17h20"></path><path d="M6 8v9"></path>
             </svg>
         );
-        
         const Utensils = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
@@ -56,7 +50,6 @@
                 <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
             </svg>
         );
-        
         const Coffee = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
@@ -66,70 +59,47 @@
                 <line x1="14" x2="14" y1="2" y2="4"></line>
             </svg>
         );
-        
         const Plus = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <line x1="12" x2="12" y1="5" y2="19"></line>
-                <line x1="5" x2="19" y1="12" y2="12"></line>
+                <line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line>
             </svg>
         );
-        
         const Trash2 = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                <line x1="10" x2="10" y1="11" y2="17"></line>
-                <line x1="14" x2="14" y1="11" y2="17"></line>
+                <line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line>
             </svg>
         );
-        
         const Check = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
         );
-        
         const AlertCircle = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" x2="12" y1="8" y2="12"></line>
-                <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                <line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line>
             </svg>
         );
-
         const Undo = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M3 7v6h6"></path>
-                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                <path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
             </svg>
         );
-
-        const ListTodo = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <rect x="3" y="5" width="6" height="6" rx="1"></rect>
-                <path d="m3 17 2 2 4-4"></path>
-                <path d="M13 6h8"></path>
-                <path d="M13 12h8"></path>
-                <path d="M13 18h8"></path>
-            </svg>
-        );
-
         const Calendar = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                <line x1="16" x2="16" y1="2" y2="6"></line>
-                <line x1="8" x2="8" y1="2" y2="6"></line>
+                <line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line>
                 <line x1="3" x2="21" y1="10" y2="10"></line>
             </svg>
         );
-
         const Bell = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
                 <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
             </svg>
         );
-
         const BellOff = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"></path>
@@ -138,45 +108,94 @@
                 <line x1="1" x2="23" y1="1" y2="23"></line>
             </svg>
         );
-
-        const Download = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" x2="12" y1="15" y2="3"></line>
-            </svg>
-        );
-
         const X = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <line x1="18" x2="6" y1="6" y2="18"></line>
-                <line x1="6" x2="18" y1="6" y2="18"></line>
+                <line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line>
             </svg>
         );
-
         const ChevronDown = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
         );
-
         const ChevronUp = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <polyline points="18 15 12 9 6 15"></polyline>
             </svg>
         );
 
+        // === Utility Functions ===
+        const getDaysSince = (dateStr) => {
+            if (!dateStr) return null;
+            return Math.floor((new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+        };
+
+        const getTaskUrgency = (task) => {
+            const days = getDaysSince(task.lastCleaned);
+            if (days === null) return 'never';
+            const ratio = days / task.frequency;
+            if (ratio >= 1.5) return 'overdue';
+            if (ratio >= 1) return 'urgent';
+            if (ratio >= 0.7) return 'soon';
+            return 'clean';
+        };
+
+        const getRoomUrgency = (room) => {
+            const tasks = room.tasks || [];
+            if (tasks.length === 0) return 'never';
+            const order = { overdue: 0, urgent: 1, never: 2, soon: 3, clean: 4 };
+            let worst = 'clean';
+            for (const t of tasks) {
+                const u = getTaskUrgency(t);
+                if (order[u] < order[worst]) worst = u;
+            }
+            return worst;
+        };
+
+        const urgencyColor = (level) => {
+            const map = {
+                never: 'bg-gray-100 border-gray-300 text-gray-600',
+                overdue: 'bg-red-50 border-red-400 text-red-800 shadow-lg shadow-red-100',
+                urgent: 'bg-orange-50 border-orange-400 text-orange-800 shadow-md shadow-orange-100',
+                soon: 'bg-yellow-50 border-yellow-400 text-yellow-800',
+                clean: 'bg-green-50 border-green-400 text-green-800',
+            };
+            return map[level] || map.never;
+        };
+
+        const taskUrgencyBadge = (level) => {
+            const map = {
+                never: 'bg-gray-200 text-gray-700',
+                overdue: 'bg-red-200 text-red-800',
+                urgent: 'bg-orange-200 text-orange-800',
+                soon: 'bg-yellow-200 text-yellow-800',
+                clean: 'bg-green-200 text-green-800',
+            };
+            return map[level] || map.never;
+        };
+
+        const taskUrgencyLabel = (task) => {
+            const days = getDaysSince(task.lastCleaned);
+            const level = getTaskUrgency(task);
+            if (level === 'never') return '未実施';
+            if (level === 'overdue') return `${days}日経過 - 至急！`;
+            if (level === 'urgent') return `${days}日経過 - 要実施`;
+            if (level === 'soon') return `${days}日経過 - そろそろ`;
+            return `${days}日経過 - OK`;
+        };
+
+        const formatIcsDate = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+        // === Main App ===
         function CleaningScheduleApp() {
           const [rooms, setRooms] = useState([]);
           const [showAddRoom, setShowAddRoom] = useState(false);
           const [expandedRoom, setExpandedRoom] = useState(null);
-          const [newTaskText, setNewTaskText] = useState('');
+          const [showAddTask, setShowAddTask] = useState(null);
+          const [newTaskName, setNewTaskName] = useState('');
+          const [newTaskFreq, setNewTaskFreq] = useState(7);
           const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-          const [newRoom, setNewRoom] = useState({
-            name: '',
-            frequency: 7,
-            icon: 'home'
-          });
+          const [newRoom, setNewRoom] = useState({ name: '', icon: 'home' });
 
           const iconOptions = [
             { value: 'home', label: 'リビング', Icon: Home },
@@ -187,210 +206,175 @@
             { value: 'coffee', label: 'ダイニング', Icon: Coffee },
           ];
 
+          // --- Persistence ---
           useEffect(() => {
             try {
               const saved = localStorage.getItem('cleaning-rooms');
-              if (saved) {
-                setRooms(JSON.parse(saved));
-              }
-            } catch (error) {
-              console.log('No existing rooms found');
-            }
+              if (saved) setRooms(JSON.parse(saved));
+            } catch (e) { console.log('No saved data'); }
           }, []);
 
           useEffect(() => {
-            if (rooms.length >= 0) {
-              try {
-                localStorage.setItem('cleaning-rooms', JSON.stringify(rooms));
-              } catch (error) {
-                console.error('Failed to save rooms:', error);
-              }
-            }
+            try { localStorage.setItem('cleaning-rooms', JSON.stringify(rooms)); }
+            catch (e) { console.error('Save failed:', e); }
           }, [rooms]);
 
+          // --- Room CRUD ---
           const addRoom = () => {
-            if (newRoom.name.trim()) {
-              setRooms([...rooms, {
-                id: Date.now(),
-                name: newRoom.name,
-                frequency: newRoom.frequency,
-                icon: newRoom.icon,
-                lastCleaned: null,
-                history: [],
-                tasks: []
-              }]);
-              setNewRoom({ name: '', frequency: 7, icon: 'home' });
-              setShowAddRoom(false);
-            }
-          };
-
-          const markAsCleaned = (id) => {
-            const now = new Date().toISOString();
-            setRooms(rooms.map(room =>
-              room.id === id
-                ? {
-                    ...room,
-                    lastCleaned: now,
-                    history: [...(room.history || []), now].slice(-10),
-                    tasks: (room.tasks || []).map(t => ({ ...t, completed: false }))
-                  }
-                : room
-            ));
+            if (!newRoom.name.trim()) return;
+            setRooms([...rooms, {
+              id: Date.now(),
+              name: newRoom.name.trim(),
+              icon: newRoom.icon,
+              tasks: []
+            }]);
+            setNewRoom({ name: '', icon: 'home' });
+            setShowAddRoom(false);
           };
 
           const deleteRoom = (id) => {
-            setRooms(rooms.filter(room => room.id !== id));
+            setRooms(rooms.filter(r => r.id !== id));
           };
 
-          // Undo last cleaning
-          const undoLastClean = (id) => {
-            setRooms(rooms.map(room => {
-              if (room.id !== id) return room;
-              const history = [...(room.history || [])];
-              history.pop(); // Remove the last entry
-              const previousClean = history.length > 0 ? history[history.length - 1] : null;
-              return { ...room, lastCleaned: previousClean, history };
-            }));
+          // --- Task CRUD (per-room) ---
+          const updateRoom = (roomId, updater) => {
+            setRooms(rooms.map(r => r.id === roomId ? updater(r) : r));
           };
 
-          // Per-room task management
-          const addTask = (roomId, taskName) => {
-            if (!taskName.trim()) return;
-            setRooms(rooms.map(room => {
-              if (room.id !== roomId) return room;
-              const tasks = [...(room.tasks || []), { id: Date.now(), name: taskName.trim(), completed: false }];
-              return { ...room, tasks };
+          const addTask = (roomId) => {
+            if (!newTaskName.trim()) return;
+            updateRoom(roomId, r => ({
+              ...r,
+              tasks: [...r.tasks, {
+                id: Date.now(),
+                name: newTaskName.trim(),
+                frequency: newTaskFreq,
+                lastCleaned: null,
+                history: []
+              }]
             }));
-            setNewTaskText('');
-          };
-
-          const toggleTask = (roomId, taskId) => {
-            setRooms(rooms.map(room => {
-              if (room.id !== roomId) return room;
-              const tasks = (room.tasks || []).map(t =>
-                t.id === taskId ? { ...t, completed: !t.completed } : t
-              );
-              return { ...room, tasks };
-            }));
+            setNewTaskName('');
+            setNewTaskFreq(7);
+            setShowAddTask(null);
           };
 
           const deleteTask = (roomId, taskId) => {
-            setRooms(rooms.map(room => {
-              if (room.id !== roomId) return room;
-              const tasks = (room.tasks || []).filter(t => t.id !== taskId);
-              return { ...room, tasks };
+            updateRoom(roomId, r => ({
+              ...r,
+              tasks: r.tasks.filter(t => t.id !== taskId)
             }));
           };
 
-          // Calendar export (.ics)
-          const exportToCalendar = (room) => {
+          const markTaskDone = (roomId, taskId) => {
+            const now = new Date().toISOString();
+            updateRoom(roomId, r => ({
+              ...r,
+              tasks: r.tasks.map(t =>
+                t.id === taskId
+                  ? { ...t, lastCleaned: now, history: [...(t.history || []), now].slice(-10) }
+                  : t
+              )
+            }));
+          };
+
+          const undoTaskDone = (roomId, taskId) => {
+            updateRoom(roomId, r => ({
+              ...r,
+              tasks: r.tasks.map(t => {
+                if (t.id !== taskId) return t;
+                const history = [...(t.history || [])];
+                history.pop();
+                return { ...t, lastCleaned: history.length > 0 ? history[history.length - 1] : null, history };
+              })
+            }));
+          };
+
+          const markAllTasksDone = (roomId) => {
+            const now = new Date().toISOString();
+            updateRoom(roomId, r => ({
+              ...r,
+              tasks: r.tasks.map(t => ({
+                ...t,
+                lastCleaned: now,
+                history: [...(t.history || []), now].slice(-10)
+              }))
+            }));
+          };
+
+          // --- Calendar export ---
+          const exportTaskToCalendar = (roomName, task) => {
             const nextDue = new Date();
-            if (room.lastCleaned) {
-              const last = new Date(room.lastCleaned);
-              nextDue.setTime(last.getTime() + room.frequency * 24 * 60 * 60 * 1000);
+            if (task.lastCleaned) {
+              nextDue.setTime(new Date(task.lastCleaned).getTime() + task.frequency * 86400000);
             }
-            if (nextDue < new Date()) {
-              nextDue.setTime(Date.now());
-            }
+            if (nextDue < new Date()) nextDue.setTime(Date.now());
+            const end = new Date(nextDue.getTime() + 3600000);
 
-            const formatDate = (d) => {
-              return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-            };
-
-            const endDate = new Date(nextDue.getTime() + 60 * 60 * 1000); // 1 hour event
-
-            const icsContent = [
-              'BEGIN:VCALENDAR',
-              'VERSION:2.0',
-              'PRODID:-//Cleaning Schedule//JP',
+            const ics = [
+              'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cleaning Schedule//JP',
               'BEGIN:VEVENT',
-              `DTSTART:${formatDate(nextDue)}`,
-              `DTEND:${formatDate(endDate)}`,
-              `SUMMARY:${room.name}の掃除`,
-              `DESCRIPTION:${room.name}の定期掃除（${room.frequency}日ごと）`,
-              `RRULE:FREQ=DAILY;INTERVAL=${room.frequency}`,
-              'BEGIN:VALARM',
-              'TRIGGER:-PT30M',
-              'ACTION:DISPLAY',
-              `DESCRIPTION:${room.name}の掃除の時間です`,
-              'END:VALARM',
-              'END:VEVENT',
-              'END:VCALENDAR'
+              `UID:task-${task.id}@cleaning`,
+              `DTSTART:${formatIcsDate(nextDue)}`,
+              `DTEND:${formatIcsDate(end)}`,
+              `SUMMARY:${roomName} - ${task.name}`,
+              `DESCRIPTION:${roomName}の${task.name}（${task.frequency}日ごと）`,
+              `RRULE:FREQ=DAILY;INTERVAL=${task.frequency}`,
+              'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY',
+              `DESCRIPTION:${roomName}の${task.name}の時間です`,
+              'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'
             ].join('\r\n');
 
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${room.name}_掃除スケジュール.ics`;
+            a.download = `${roomName}_${task.name}.ics`;
             a.click();
             URL.revokeObjectURL(url);
           };
 
           const exportAllToCalendar = () => {
-            const events = rooms.map(room => {
-              const nextDue = new Date();
-              if (room.lastCleaned) {
-                const last = new Date(room.lastCleaned);
-                nextDue.setTime(last.getTime() + room.frequency * 24 * 60 * 60 * 1000);
-              }
-              if (nextDue < new Date()) {
-                nextDue.setTime(Date.now());
-              }
-              const endDate = new Date(nextDue.getTime() + 60 * 60 * 1000);
-              const formatDate = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-
-              return [
-                'BEGIN:VEVENT',
-                `UID:cleaning-${room.id}@schedule`,
-                `DTSTART:${formatDate(nextDue)}`,
-                `DTEND:${formatDate(endDate)}`,
-                `SUMMARY:${room.name}の掃除`,
-                `DESCRIPTION:${room.name}の定期掃除（${room.frequency}日ごと）`,
-                `RRULE:FREQ=DAILY;INTERVAL=${room.frequency}`,
-                'BEGIN:VALARM',
-                'TRIGGER:-PT30M',
-                'ACTION:DISPLAY',
-                `DESCRIPTION:${room.name}の掃除の時間です`,
-                'END:VALARM',
-                'END:VEVENT'
-              ].join('\r\n');
-            });
-
-            const icsContent = [
-              'BEGIN:VCALENDAR',
-              'VERSION:2.0',
-              'PRODID:-//Cleaning Schedule//JP',
-              ...events,
-              'END:VCALENDAR'
-            ].join('\r\n');
-
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const events = rooms.flatMap(room =>
+              room.tasks.map(task => {
+                const nextDue = new Date();
+                if (task.lastCleaned) {
+                  nextDue.setTime(new Date(task.lastCleaned).getTime() + task.frequency * 86400000);
+                }
+                if (nextDue < new Date()) nextDue.setTime(Date.now());
+                const end = new Date(nextDue.getTime() + 3600000);
+                return [
+                  'BEGIN:VEVENT',
+                  `UID:task-${task.id}@cleaning`,
+                  `DTSTART:${formatIcsDate(nextDue)}`,
+                  `DTEND:${formatIcsDate(end)}`,
+                  `SUMMARY:${room.name} - ${task.name}`,
+                  `DESCRIPTION:${room.name}の${task.name}（${task.frequency}日ごと）`,
+                  `RRULE:FREQ=DAILY;INTERVAL=${task.frequency}`,
+                  'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY',
+                  `DESCRIPTION:${room.name}の${task.name}の時間です`,
+                  'END:VALARM', 'END:VEVENT'
+                ].join('\r\n');
+              })
+            );
+            if (events.length === 0) return;
+            const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cleaning Schedule//JP', ...events, 'END:VCALENDAR'].join('\r\n');
+            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = '掃除スケジュール_全部屋.ics';
+            a.download = '掃除スケジュール_全タスク.ics';
             a.click();
             URL.revokeObjectURL(url);
           };
 
-          // Notification functionality
+          // --- Notifications ---
           const requestNotificationPermission = async () => {
-            if (!('Notification' in window)) {
-              alert('このブラウザは通知機能に対応していません');
-              return;
-            }
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-              setNotificationsEnabled(true);
-              localStorage.setItem('cleaning-notifications', 'true');
-              new Notification('掃除スケジュール', {
-                body: '通知が有効になりました！掃除が必要な時にお知らせします。',
-                icon: '🧹'
-              });
-            } else {
-              setNotificationsEnabled(false);
-              localStorage.setItem('cleaning-notifications', 'false');
+            if (!('Notification' in window)) { alert('このブラウザは通知機能に対応していません'); return; }
+            const perm = await Notification.requestPermission();
+            setNotificationsEnabled(perm === 'granted');
+            localStorage.setItem('cleaning-notifications', perm === 'granted' ? 'true' : 'false');
+            if (perm === 'granted') {
+              new Notification('掃除スケジュール', { body: '通知が有効になりました！' });
             }
           };
 
@@ -399,13 +383,6 @@
             localStorage.setItem('cleaning-notifications', 'false');
           };
 
-          const sendNotification = (title, body) => {
-            if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
-              new Notification(title, { body });
-            }
-          };
-
-          // Check notifications on load and periodically
           useEffect(() => {
             const saved = localStorage.getItem('cleaning-notifications');
             if (saved === 'true' && 'Notification' in window && Notification.permission === 'granted') {
@@ -417,100 +394,63 @@
             if (!notificationsEnabled || rooms.length === 0) return;
 
             const checkAndNotify = () => {
-              const overdueRooms = rooms.filter(r => getUrgencyLevel(r) === 'overdue');
-              const urgentRooms = rooms.filter(r => getUrgencyLevel(r) === 'urgent');
+              const overdueTasks = [];
+              const urgentTasks = [];
+              rooms.forEach(r => r.tasks.forEach(t => {
+                const u = getTaskUrgency(t);
+                if (u === 'overdue') overdueTasks.push(`${r.name}:${t.name}`);
+                else if (u === 'urgent') urgentTasks.push(`${r.name}:${t.name}`);
+              }));
 
-              if (overdueRooms.length > 0) {
-                sendNotification(
-                  '至急: 掃除が必要です！',
-                  `${overdueRooms.map(r => r.name).join('、')} の掃除が大幅に遅れています`
-                );
-              } else if (urgentRooms.length > 0) {
-                sendNotification(
-                  '掃除のお知らせ',
-                  `${urgentRooms.map(r => r.name).join('、')} の掃除時期です`
-                );
+              if (overdueTasks.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
+                new Notification('至急: 掃除タスクが遅れています！', {
+                  body: overdueTasks.join('、')
+                });
+              } else if (urgentTasks.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
+                new Notification('掃除のお知らせ', {
+                  body: urgentTasks.join('、') + ' の実施時期です'
+                });
               }
             };
 
-            // Check once on mount/change
             const lastNotified = localStorage.getItem('cleaning-last-notified');
             const now = Date.now();
-            // Only notify once per hour
-            if (!lastNotified || now - parseInt(lastNotified) > 60 * 60 * 1000) {
+            if (!lastNotified || now - parseInt(lastNotified) > 3600000) {
               checkAndNotify();
               localStorage.setItem('cleaning-last-notified', now.toString());
             }
 
-            // Check every hour
             const interval = setInterval(() => {
               checkAndNotify();
               localStorage.setItem('cleaning-last-notified', Date.now().toString());
-            }, 60 * 60 * 1000);
+            }, 3600000);
 
             return () => clearInterval(interval);
           }, [notificationsEnabled, rooms]);
 
-          const getDaysSinceLastCleaned = (lastCleaned) => {
-            if (!lastCleaned) return null;
-            const now = new Date();
-            const last = new Date(lastCleaned);
-            return Math.floor((now - last) / (1000 * 60 * 60 * 24));
-          };
+          // --- Derived state ---
+          const getIconComponent = (v) => (iconOptions.find(o => o.value === v) || iconOptions[0]).Icon;
 
-          const getUrgencyLevel = (room) => {
-            const daysSince = getDaysSinceLastCleaned(room.lastCleaned);
-            if (daysSince === null) return 'never';
-            
-            const ratio = daysSince / room.frequency;
-            if (ratio >= 1.5) return 'overdue';
-            if (ratio >= 1) return 'urgent';
-            if (ratio >= 0.7) return 'soon';
-            return 'clean';
-          };
-
-          const getUrgencyColor = (level) => {
-            switch (level) {
-              case 'never': return 'bg-gray-100 border-gray-300 text-gray-600';
-              case 'overdue': return 'bg-red-50 border-red-400 text-red-800 shadow-lg shadow-red-100';
-              case 'urgent': return 'bg-orange-50 border-orange-400 text-orange-800 shadow-md shadow-orange-100';
-              case 'soon': return 'bg-yellow-50 border-yellow-400 text-yellow-800';
-              case 'clean': return 'bg-green-50 border-green-400 text-green-800';
-              default: return 'bg-gray-100 border-gray-300';
-            }
-          };
-
-          const getUrgencyMessage = (room) => {
-            const level = getUrgencyLevel(room);
-            const daysSince = getDaysSinceLastCleaned(room.lastCleaned);
-            
-            if (level === 'never') return '未掃除';
-            if (level === 'overdue') return `${daysSince}日経過 - 至急！`;
-            if (level === 'urgent') return `${daysSince}日経過 - 掃除が必要`;
-            if (level === 'soon') return `${daysSince}日経過 - そろそろ`;
-            return `${daysSince}日経過 - まだ綺麗`;
-          };
-
-          const getIconComponent = (iconValue) => {
-            const option = iconOptions.find(opt => opt.value === iconValue);
-            return option ? option.Icon : Home;
+          const allTasks = rooms.flatMap(r => r.tasks.map(t => ({ ...t, roomName: r.name })));
+          const stats = {
+            totalRooms: rooms.length,
+            totalTasks: allTasks.length,
+            overdue: allTasks.filter(t => getTaskUrgency(t) === 'overdue').length,
+            urgent: allTasks.filter(t => getTaskUrgency(t) === 'urgent').length,
+            clean: allTasks.filter(t => getTaskUrgency(t) === 'clean').length,
           };
 
           const sortedRooms = [...rooms].sort((a, b) => {
-            const urgencyOrder = { overdue: 0, urgent: 1, never: 2, soon: 3, clean: 4 };
-            return urgencyOrder[getUrgencyLevel(a)] - urgencyOrder[getUrgencyLevel(b)];
+            const order = { overdue: 0, urgent: 1, never: 2, soon: 3, clean: 4 };
+            return order[getRoomUrgency(a)] - order[getRoomUrgency(b)];
           });
 
-          const stats = {
-            total: rooms.length,
-            overdue: rooms.filter(r => getUrgencyLevel(r) === 'overdue').length,
-            urgent: rooms.filter(r => getUrgencyLevel(r) === 'urgent').length,
-            clean: rooms.filter(r => getUrgencyLevel(r) === 'clean').length,
-          };
-
+          // === Render ===
           return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 sm:p-8">
               <div className="max-w-4xl mx-auto">
+
+                {/* Header */}
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
                   <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 sm:p-8">
                     <div className="flex items-start justify-between">
@@ -519,27 +459,21 @@
                           <Home size={36} />
                           掃除スケジュール管理
                         </h1>
-                        <p className="text-blue-100">
-                          部屋ごとの掃除状況を一目で確認
-                        </p>
+                        <p className="text-blue-100">タスクごとにスケジュールを管理</p>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={notificationsEnabled ? disableNotifications : requestNotificationPermission}
-                          className={`p-2 rounded-lg transition-colors ${
-                            notificationsEnabled
-                              ? 'bg-white/20 text-white hover:bg-white/30'
-                              : 'bg-white/10 text-blue-200 hover:bg-white/20'
-                          }`}
+                          className={`p-2 rounded-lg transition-colors ${notificationsEnabled ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white/10 text-blue-200 hover:bg-white/20'}`}
                           title={notificationsEnabled ? '通知をオフにする' : '通知をオンにする'}
                         >
                           {notificationsEnabled ? <Bell size={20} /> : <BellOff size={20} />}
                         </button>
-                        {rooms.length > 0 && (
+                        {allTasks.length > 0 && (
                           <button
                             onClick={exportAllToCalendar}
                             className="p-2 rounded-lg bg-white/10 text-blue-200 hover:bg-white/20 transition-colors"
-                            title="全部屋のスケジュールをカレンダーにエクスポート"
+                            title="全タスクをカレンダーにエクスポート"
                           >
                             <Calendar size={20} />
                           </button>
@@ -548,10 +482,11 @@
                     </div>
                   </div>
 
+                  {/* Stats */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-gray-50">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
-                      <div className="text-xs text-gray-600">登録部屋数</div>
+                      <div className="text-2xl font-bold text-gray-800">{stats.totalTasks}</div>
+                      <div className="text-xs text-gray-600">総タスク数</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
@@ -559,15 +494,16 @@
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-orange-600">{stats.urgent}</div>
-                      <div className="text-xs text-gray-600">要掃除</div>
+                      <div className="text-xs text-gray-600">要実施</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">{stats.clean}</div>
-                      <div className="text-xs text-gray-600">綺麗</div>
+                      <div className="text-xs text-gray-600">実施済</div>
                     </div>
                   </div>
                 </div>
 
+                {/* Add Room Button */}
                 {!showAddRoom && (
                   <button
                     onClick={() => setShowAddRoom(true)}
@@ -578,51 +514,30 @@
                   </button>
                 )}
 
+                {/* Add Room Form */}
                 {showAddRoom && (
                   <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border-2 border-blue-300">
                     <h3 className="font-bold text-lg mb-4 text-gray-800">新しい部屋を追加</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          部屋名
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">部屋名</label>
                         <input
                           type="text"
                           value={newRoom.name}
                           onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value })}
+                          onKeyDown={(e) => e.key === 'Enter' && addRoom()}
                           placeholder="例: リビング、キッチン"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          掃除頻度（日数）
-                        </label>
-                        <input
-                          type="number"
-                          value={newRoom.frequency}
-                          onChange={(e) => setNewRoom({ ...newRoom, frequency: parseInt(e.target.value) })}
-                          min="1"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {newRoom.frequency}日ごとに掃除が必要
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          アイコン
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">アイコン</label>
                         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                           {iconOptions.map(({ value, label, Icon }) => (
                             <button
                               key={value}
                               onClick={() => setNewRoom({ ...newRoom, icon: value })}
-                              className={`p-3 rounded-lg border-2 transition-all ${
-                                newRoom.icon === value
-                                  ? 'border-blue-500 bg-blue-50'
-                                  : 'border-gray-200 hover:border-blue-300'
-                              }`}
+                              className={`p-3 rounded-lg border-2 transition-all ${newRoom.icon === value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
                             >
                               <Icon size={24} className="mx-auto" />
                               <div className="text-xs mt-1">{label}</div>
@@ -631,171 +546,185 @@
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button
-                          onClick={addRoom}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
-                        >
-                          追加
-                        </button>
-                        <button
-                          onClick={() => setShowAddRoom(false)}
-                          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors"
-                        >
-                          キャンセル
-                        </button>
+                        <button onClick={addRoom} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors">追加</button>
+                        <button onClick={() => setShowAddRoom(false)} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">キャンセル</button>
                       </div>
                     </div>
                   </div>
                 )}
 
+                {/* Room Cards */}
                 <div className="space-y-4">
                   {sortedRooms.length === 0 ? (
                     <div className="bg-white rounded-xl p-12 text-center text-gray-400 shadow">
                       <Home size={48} className="mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">部屋を追加して掃除スケジュールを管理しましょう</p>
+                      <p className="text-lg">部屋を追加して掃除タスクを管理しましょう</p>
                     </div>
                   ) : (
                     sortedRooms.map(room => {
-                      const IconComponent = getIconComponent(room.icon);
-                      const urgencyLevel = getUrgencyLevel(room);
-                      const urgencyColor = getUrgencyColor(urgencyLevel);
+                      const IconComp = getIconComponent(room.icon);
+                      const roomLevel = getRoomUrgency(room);
                       const isExpanded = expandedRoom === room.id;
                       const tasks = room.tasks || [];
-                      const completedTasks = tasks.filter(t => t.completed).length;
+                      const sortedTasks = [...tasks].sort((a, b) => {
+                        const order = { overdue: 0, urgent: 1, never: 2, soon: 3, clean: 4 };
+                        return order[getTaskUrgency(a)] - order[getTaskUrgency(b)];
+                      });
 
                       return (
-                        <div
-                          key={room.id}
-                          className={`rounded-xl p-6 border-2 transition-all ${urgencyColor}`}
-                        >
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="bg-white p-3 rounded-lg shadow-sm">
-                                <IconComponent size={28} />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-xl">{room.name}</h3>
-                                <p className="text-sm opacity-75">
-                                  {room.frequency}日ごとに掃除
-                                  {tasks.length > 0 && ` ・ タスク ${completedTasks}/${tasks.length}`}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => exportToCalendar(room)}
-                                className="text-gray-400 hover:text-blue-600 transition-colors p-1"
-                                title="カレンダーにエクスポート"
-                              >
-                                <Calendar size={18} />
-                              </button>
-                              <button
-                                onClick={() => deleteRoom(room.id)}
-                                className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              {urgencyLevel === 'overdue' && <AlertCircle size={20} />}
-                              <span className="font-semibold">
-                                {getUrgencyMessage(room)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {room.lastCleaned && room.history && room.history.length > 0 && (
-                                <button
-                                  onClick={() => undoLastClean(room.id)}
-                                  className="bg-white hover:bg-opacity-80 px-3 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-1 text-sm"
-                                  title="掃除完了を取り消し"
-                                >
-                                  <Undo size={16} />
-                                  取消
-                                </button>
-                              )}
-                              <button
-                                onClick={() => markAsCleaned(room.id)}
-                                className="bg-white hover:bg-opacity-80 px-4 py-2 rounded-lg font-medium shadow-sm transition-all flex items-center gap-2"
-                              >
-                                <Check size={18} />
-                                掃除完了
-                              </button>
-                            </div>
-                          </div>
-
-                          {room.lastCleaned && (
-                            <div className="mt-3 pt-3 border-t border-current border-opacity-20">
-                              <p className="text-sm opacity-75">
-                                最終掃除: {new Date(room.lastCleaned).toLocaleDateString('ja-JP')}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Per-room tasks section */}
-                          <div className="mt-3 pt-3 border-t border-current border-opacity-20">
-                            <button
-                              onClick={() => setExpandedRoom(isExpanded ? null : room.id)}
-                              className="flex items-center gap-2 text-sm font-medium opacity-75 hover:opacity-100 transition-opacity w-full"
-                            >
-                              <ListTodo size={16} />
-                              タスク一覧
-                              {tasks.length > 0 && (
-                                <span className="bg-white/50 px-2 py-0.5 rounded-full text-xs">
-                                  {completedTasks}/{tasks.length}
-                                </span>
-                              )}
-                              {isExpanded ? <ChevronUp size={16} className="ml-auto" /> : <ChevronDown size={16} className="ml-auto" />}
-                            </button>
-
-                            {isExpanded && (
-                              <div className="mt-3 space-y-2">
-                                {tasks.map(task => (
-                                  <div key={task.id} className="flex items-center gap-2 bg-white/50 rounded-lg px-3 py-2">
-                                    <input
-                                      type="checkbox"
-                                      checked={task.completed}
-                                      onChange={() => toggleTask(room.id, task.id)}
-                                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    />
-                                    <span className={`flex-1 text-sm ${task.completed ? 'line-through opacity-50' : ''}`}>
-                                      {task.name}
-                                    </span>
-                                    <button
-                                      onClick={() => deleteTask(room.id, task.id)}
-                                      className="text-gray-400 hover:text-red-500 transition-colors"
-                                    >
-                                      <X size={14} />
-                                    </button>
-                                  </div>
-                                ))}
-
-                                <div className="flex gap-2">
-                                  <input
-                                    type="text"
-                                    value={expandedRoom === room.id ? newTaskText : ''}
-                                    onChange={(e) => setNewTaskText(e.target.value)}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        addTask(room.id, newTaskText);
-                                      }
-                                    }}
-                                    placeholder="新しいタスクを追加..."
-                                    className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  />
-                                  <button
-                                    onClick={() => addTask(room.id, newTaskText)}
-                                    className="bg-white hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-1"
-                                  >
-                                    <Plus size={14} />
-                                    追加
-                                  </button>
+                        <div key={room.id} className={`rounded-xl border-2 transition-all ${urgencyColor(roomLevel)}`}>
+                          {/* Room Header */}
+                          <div
+                            className="p-5 cursor-pointer"
+                            onClick={() => setExpandedRoom(isExpanded ? null : room.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="bg-white p-3 rounded-lg shadow-sm">
+                                  <IconComp size={28} />
+                                </div>
+                                <div>
+                                  <h3 className="font-bold text-xl">{room.name}</h3>
+                                  <p className="text-sm opacity-75">
+                                    {tasks.length === 0 ? 'タスク未登録' : `${tasks.length}個のタスク`}
+                                    {tasks.length > 0 && (() => {
+                                      const ov = tasks.filter(t => getTaskUrgency(t) === 'overdue' || getTaskUrgency(t) === 'urgent').length;
+                                      return ov > 0 ? ` ・ ${ov}件が要対応` : '';
+                                    })()}
+                                  </p>
                                 </div>
                               </div>
-                            )}
+                              <div className="flex items-center gap-2">
+                                {tasks.length > 0 && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); markAllTasksDone(room.id); }}
+                                    className="bg-white hover:bg-opacity-80 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-all flex items-center gap-1"
+                                    title="全タスク完了"
+                                  >
+                                    <Check size={14} />
+                                    全完了
+                                  </button>
+                                )}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); deleteRoom(room.id); }}
+                                  className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                                {isExpanded ? <ChevronUp size={20} className="opacity-50" /> : <ChevronDown size={20} className="opacity-50" />}
+                              </div>
+                            </div>
                           </div>
+
+                          {/* Expanded: Task List */}
+                          {isExpanded && (
+                            <div className="px-5 pb-5 space-y-2">
+                              <div className="border-t border-current border-opacity-20 pt-4" />
+
+                              {sortedTasks.length === 0 && (
+                                <p className="text-sm opacity-60 text-center py-2">タスクを追加してください</p>
+                              )}
+
+                              {sortedTasks.map(task => {
+                                const tLevel = getTaskUrgency(task);
+                                return (
+                                  <div key={task.id} className="bg-white/60 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-medium text-sm">{task.name}</span>
+                                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${taskUrgencyBadge(tLevel)}`}>
+                                          {taskUrgencyLabel(task)}
+                                        </span>
+                                      </div>
+                                      <div className="text-xs opacity-60 mt-0.5">
+                                        {task.frequency}日ごと
+                                        {task.lastCleaned && ` ・ 最終: ${new Date(task.lastCleaned).toLocaleDateString('ja-JP')}`}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      {task.lastCleaned && task.history && task.history.length > 0 && (
+                                        <button
+                                          onClick={() => undoTaskDone(room.id, task.id)}
+                                          className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-1"
+                                          title="完了を取り消し"
+                                        >
+                                          <Undo size={12} />
+                                          取消
+                                        </button>
+                                      )}
+                                      <button
+                                        onClick={() => markTaskDone(room.id, task.id)}
+                                        className="px-2 py-1 rounded text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 transition-colors flex items-center gap-1"
+                                      >
+                                        <Check size={12} />
+                                        完了
+                                      </button>
+                                      <button
+                                        onClick={() => exportTaskToCalendar(room.name, task)}
+                                        className="px-1.5 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 transition-colors"
+                                        title="カレンダーにエクスポート"
+                                      >
+                                        <Calendar size={12} />
+                                      </button>
+                                      <button
+                                        onClick={() => deleteTask(room.id, task.id)}
+                                        className="px-1.5 py-1 rounded text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                      >
+                                        <X size={12} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+
+                              {/* Add Task Form */}
+                              {showAddTask === room.id ? (
+                                <div className="bg-white/80 rounded-lg p-3 space-y-2 border border-dashed border-blue-300">
+                                  <input
+                                    type="text"
+                                    value={newTaskName}
+                                    onChange={(e) => setNewTaskName(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && addTask(room.id)}
+                                    placeholder="タスク名（例: 床の掃き掃除）"
+                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    autoFocus
+                                  />
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-xs text-gray-600 whitespace-nowrap">頻度:</label>
+                                    <input
+                                      type="number"
+                                      value={newTaskFreq}
+                                      onChange={(e) => setNewTaskFreq(Math.max(1, parseInt(e.target.value) || 1))}
+                                      min="1"
+                                      className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <span className="text-xs text-gray-500">日ごと</span>
+                                    <div className="flex-1" />
+                                    <button
+                                      onClick={() => addTask(room.id)}
+                                      className="px-3 py-1 rounded-lg text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                                    >
+                                      追加
+                                    </button>
+                                    <button
+                                      onClick={() => { setShowAddTask(null); setNewTaskName(''); setNewTaskFreq(7); }}
+                                      className="px-3 py-1 rounded-lg text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition-colors"
+                                    >
+                                      取消
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setShowAddTask(room.id)}
+                                  className="w-full border border-dashed border-gray-300 rounded-lg p-2 text-sm text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-colors flex items-center justify-center gap-1"
+                                >
+                                  <Plus size={14} />
+                                  タスクを追加
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })
