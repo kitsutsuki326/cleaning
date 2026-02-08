@@ -186,6 +186,21 @@
 
         const formatIcsDate = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
+        const downloadIcs = (filename, content) => {
+            const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 100);
+        };
+
         // === Main App ===
         function CleaningScheduleApp() {
           const [rooms, setRooms] = useState([]);
@@ -302,69 +317,74 @@
           };
 
           // --- Calendar export ---
-          const exportTaskToCalendar = (roomName, task) => {
+          const buildTaskEvent = (roomName, task, includeWrapper) => {
+            const now = new Date();
             const nextDue = new Date();
             if (task.lastCleaned) {
               nextDue.setTime(new Date(task.lastCleaned).getTime() + task.frequency * 86400000);
             }
-            if (nextDue < new Date()) nextDue.setTime(Date.now());
+            if (nextDue <= now) {
+              // Set to tomorrow 9:00 AM local time
+              nextDue.setTime(now.getTime());
+              nextDue.setDate(nextDue.getDate() + 1);
+              nextDue.setHours(9, 0, 0, 0);
+            }
             const end = new Date(nextDue.getTime() + 3600000);
+            const summary = `${roomName} - ${task.name}`;
+            const desc = `${roomName}の${task.name}（${task.frequency}日ごと）`;
 
-            const ics = [
-              'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cleaning Schedule//JP',
+            const event = [
               'BEGIN:VEVENT',
-              `UID:task-${task.id}@cleaning`,
+              `UID:task-${task.id}-${Date.now()}@cleaning-schedule`,
+              `DTSTAMP:${formatIcsDate(now)}`,
               `DTSTART:${formatIcsDate(nextDue)}`,
               `DTEND:${formatIcsDate(end)}`,
-              `SUMMARY:${roomName} - ${task.name}`,
-              `DESCRIPTION:${roomName}の${task.name}（${task.frequency}日ごと）`,
+              `SUMMARY:${summary}`,
+              `DESCRIPTION:${desc}`,
               `RRULE:FREQ=DAILY;INTERVAL=${task.frequency}`,
-              'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY',
-              `DESCRIPTION:${roomName}の${task.name}の時間です`,
-              'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'
-            ].join('\r\n');
+              'STATUS:CONFIRMED',
+              'BEGIN:VALARM',
+              'TRIGGER:-PT30M',
+              'ACTION:DISPLAY',
+              `DESCRIPTION:${summary}の時間です`,
+              'END:VALARM',
+              'END:VEVENT'
+            ];
 
-            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${roomName}_${task.name}.ics`;
-            a.click();
-            URL.revokeObjectURL(url);
+            if (includeWrapper) {
+              return [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Cleaning Schedule//JP',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH',
+                ...event,
+                'END:VCALENDAR'
+              ].join('\r\n');
+            }
+            return event.join('\r\n');
+          };
+
+          const exportTaskToCalendar = (roomName, task) => {
+            const ics = buildTaskEvent(roomName, task, true);
+            downloadIcs(`${roomName}_${task.name}.ics`, ics);
           };
 
           const exportAllToCalendar = () => {
             const events = rooms.flatMap(room =>
-              room.tasks.map(task => {
-                const nextDue = new Date();
-                if (task.lastCleaned) {
-                  nextDue.setTime(new Date(task.lastCleaned).getTime() + task.frequency * 86400000);
-                }
-                if (nextDue < new Date()) nextDue.setTime(Date.now());
-                const end = new Date(nextDue.getTime() + 3600000);
-                return [
-                  'BEGIN:VEVENT',
-                  `UID:task-${task.id}@cleaning`,
-                  `DTSTART:${formatIcsDate(nextDue)}`,
-                  `DTEND:${formatIcsDate(end)}`,
-                  `SUMMARY:${room.name} - ${task.name}`,
-                  `DESCRIPTION:${room.name}の${task.name}（${task.frequency}日ごと）`,
-                  `RRULE:FREQ=DAILY;INTERVAL=${task.frequency}`,
-                  'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY',
-                  `DESCRIPTION:${room.name}の${task.name}の時間です`,
-                  'END:VALARM', 'END:VEVENT'
-                ].join('\r\n');
-              })
+              room.tasks.map(task => buildTaskEvent(room.name, task, false))
             );
             if (events.length === 0) return;
-            const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cleaning Schedule//JP', ...events, 'END:VCALENDAR'].join('\r\n');
-            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = '掃除スケジュール_全タスク.ics';
-            a.click();
-            URL.revokeObjectURL(url);
+            const ics = [
+              'BEGIN:VCALENDAR',
+              'VERSION:2.0',
+              'PRODID:-//Cleaning Schedule//JP',
+              'CALSCALE:GREGORIAN',
+              'METHOD:PUBLISH',
+              ...events,
+              'END:VCALENDAR'
+            ].join('\r\n');
+            downloadIcs('掃除スケジュール_全タスク.ics', ics);
           };
 
           // --- Notifications ---
